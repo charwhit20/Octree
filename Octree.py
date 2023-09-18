@@ -1,3 +1,4 @@
+from collections import deque
 """
 0 +x +y +z
 1 +x +y -z
@@ -25,7 +26,7 @@ class Node:
         self.data = [None, None, None, None, None, None, None, None]
         # tracks coords of quadrant (x, y, z), immutable, set at quadrant creation
         self.coords = coords
-        # tracks nodes each quadrant points to, mutable
+        # tracks nodes each octant points to, mutable
         self.nodes = [None, None, None, None, None, None, None, None]
 
 
@@ -170,5 +171,10 @@ class Octree:
                     break
 
     # Iterate through every point append to new csv file if greater than depth + threshold
-    # create a stack,
+    # create a stack
     def cleanTree(self, threshold) -> list:
+        cur = self.head
+        stack = deque()
+        for x in cur.nodes:
+            if x is not None: stack.appendleft(x)
+        while stack:
