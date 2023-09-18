@@ -20,7 +20,8 @@ contains a list point maximum for each, and points to 8 other octants
 
 # This defines a QUADRANT, which points to 8 POINTS inside it
 class Node:
-    def __init__(self, coords=(0, 0, 0), depth=0):
+    def __init__(self, size, coords=(0, 0, 0), depth=0.0):
+        self.size = size
         # tracks depth of each node
         self.depth = depth
         # tracks datapoints inside quadrant radius, mutable
@@ -36,8 +37,8 @@ class Octree:
     def __init__(self, constraints):
         self.clean = []
         self.length = 0
-        self.head = Node()
         self.xmax, self.ymax, self.zmax = constraints
+        self.head = Node((self.xmax, self.ymax, self.zmax))
 
 
     """
@@ -56,6 +57,7 @@ class Octree:
     # data is (x,y,z)
 
     def insert(self, data):
+        if self.length % 1000 == 0: print(self.length/1000)
         cur = self.head
         x, y, z = data
         x1, y1, z1 = cur.coords
@@ -68,8 +70,8 @@ class Octree:
                 # if there is data in spot where it should go, but the current node is a leaf
                 # then you must divide the 0 quadrant into 8 and put the new point in there
                 if cur.data[0] is not None and cur.nodes[0] is None:
-                    cur.nodes[0] = Node((x1 + (self.xmax / 2 ** cur.depth), y1 + (self.ymax / 2 ** cur.depth),
-                                         z1 + (self.zmax / 2 ** cur.depth)), cur.depth + 1)
+                    cur.nodes[0] = Node((x1 + (self.xmax / (2 ** cur.depth)), y1 + (self.ymax / (2 ** cur.depth)),
+                                         z1 + (self.zmax / (2 ** cur.depth))), cur.depth + 1)
                     cur = cur.nodes[0]
                     continue
                 # Else there is data in the spot where it should go, but the current node is not a leaf
@@ -85,8 +87,9 @@ class Octree:
             # quad 1
             elif x > x1 and y > y1 and z < z1:
                 if cur.data[1] is not None and cur.nodes[1] is None:
-                    cur.nodes[1] = Node((x1 + (self.xmax / (2 ** cur.depth)), y1 + (self.ymax / (2 ** cur.depth)),
-                                         z1 - (self.zmax / (2 ** cur.depth))), cur.depth + 1)
+                    cur.nodes[1] = Node((cur.size[0] / 2, cur.size[1] / 2, cur.size[2] / 2),
+                                        (x1 + cur.size[0] / 2, y1 + cur.size[1] / 2,
+                                         z1 - cur.size[2] / 2), cur.depth + 1)
                     cur = cur.nodes[1]
                     continue
                 elif cur.data[1] is not None and cur.nodes[1] is not None:
@@ -99,8 +102,8 @@ class Octree:
             # quad 2
             elif x > x1 and y < y1 and z > z1:
                 if cur.data[2] is not None and cur.nodes[2] is None:
-                    cur.nodes[2] = Node((x1 + (self.xmax / (2 ** cur.depth)), y1 - (self.ymax / (2 ** cur.depth)),
-                                         z1 + (self.zmax / (2 ** cur.depth))), cur.depth + 1)
+                    cur.nodes[2] = Node((x1 + cur.size[0] / 2, y1 - cur.size[1] / 2,
+                                         z1 + cur.size[2] / 2), cur.depth + 1)
                     cur = cur.nodes[2]
                     continue
                 elif cur.data[2] is not None and cur.nodes[2] is not None:
@@ -113,8 +116,8 @@ class Octree:
             # quad 3
             elif x > x1 and y < y1 and z < z1:
                 if cur.data[3] is not None and cur.nodes[3] is None:
-                    cur.nodes[3] = Node((x1 + (self.xmax / (2 ** cur.depth)), y1 - (self.ymax / (2 ** cur.depth)),
-                                         z1 - (self.zmax / (2 ** cur.depth))), cur.depth + 1)
+                    cur.nodes[3] = Node((x1 + cur.size[0] / 2, y1 - cur.size[1] / 2,
+                                         z1 - cur.size[2] / 2), cur.depth + 1)
                     cur = cur.nodes[3]
                     continue
                 elif cur.data[3] is not None and cur.nodes[3] is not None:
@@ -127,8 +130,8 @@ class Octree:
             # quad 4
             elif x <= x1 and y >= y1 and z >= z1:
                 if cur.data[4] is not None and cur.nodes[4] is None:
-                    cur.nodes[4] = Node((x1 - (self.xmax / (2 ** cur.depth)), y1 + (self.ymax / (2 ** cur.depth)),
-                                         z1 + (self.zmax / (2 ** cur.depth))), cur.depth + 1)
+                    cur.nodes[4] = Node((x1 - cur.size[0] / 2, y1 + cur.size[1] / 2,
+                                         z1 + cur.size[2] / 2), cur.depth + 1)
                     cur = cur.nodes[4]
                     continue
                 elif cur.data[4] is not None and cur.nodes[4] is not None:
@@ -141,8 +144,8 @@ class Octree:
             # quad 5
             elif x <= x1 and y >= y1 and z <= z1:
                 if cur.data[5] is not None and cur.nodes[5] is None:
-                    cur.nodes[5] = Node((x1 - (self.xmax / (2 ** cur.depth)), y1 + (self.ymax / (2 ** cur.depth)),
-                                         z1 - (self.zmax / (2 ** cur.depth))), cur.depth + 1)
+                    cur.nodes[5] = Node((x1 - cur.size[0] / 2, y1 + cur.size[1] / 2,
+                                         z1 - cur.size[2] / 2), cur.depth + 1)
                     cur = cur.nodes[5]
                     continue
                 elif cur.data[5] is not None and cur.nodes[5] is not None:
@@ -155,8 +158,8 @@ class Octree:
             # quad 6
             elif x <= x1 and y <= y1 and z >= z1:
                 if cur.data[6] is not None and cur.nodes[6] is None:
-                    cur.nodes[6] = Node((x1 - (self.xmax / (2 ** cur.depth)), y1 - (self.ymax / (2 ** cur.depth)),
-                                         z1 + (self.zmax / (2 ** cur.depth))), cur.depth + 1)
+                    cur.nodes[6] = Node((x1 - cur.size[0] / 2, y1 - cur.size[1] / 2,
+                                         z1 + cur.size[2] / 2), cur.depth + 1)
                     cur = cur.nodes[6]
                     continue
                 elif cur.data[6] is not None and cur.nodes[6] is not None:
@@ -169,8 +172,8 @@ class Octree:
             # quad 7
             elif x <= x1 and y <= y1 and z <= z1:
                 if cur.data[7] is not None and cur.nodes[7] is None:
-                    cur.nodes[7] = Node((x1 - (self.xmax / (2 ** cur.depth)), y1 - (self.ymax / (2 ** cur.depth)),
-                                         z1 - (self.zmax / (2 ** cur.depth))), cur.depth + 1)
+                    cur.nodes[7] = Node((x1 - cur.size[0] / 2, y1 - cur.size[1] / 2,
+                                         z1 - cur.size[2] / 2), cur.depth + 1)
                     cur = cur.nodes[7]
                     continue
                 elif cur.data[7] is not None and cur.nodes[7] is not None:
