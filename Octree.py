@@ -168,3 +168,7 @@ class Octree:
                 else:
                     cur.data[7] = (x, y, z)
                     break
+
+    # Iterate through every point append to new csv file if greater than depth + threshold
+    # create a stack,
+    def cleanTree(self, threshold) -> list:
