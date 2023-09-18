@@ -1,4 +1,5 @@
 from collections import deque
+import math
 """
 0 +x +y +z
 1 +x +y -z
@@ -33,6 +34,8 @@ class Node:
 class Octree:
     # include max and min so the tree knows how to divide quadrants
     def __init__(self, constraints):
+        self.clean = []
+        self.length = 0
         self.head = Node()
         self.xmax, self.ymax, self.zmax = constraints
 
@@ -77,6 +80,7 @@ class Octree:
                 # else, node is a leaf, and the data point is empty
                 else:
                     cur.data[0] = (x, y, z)
+                    self.length += 1
                     break
             # quad 1
             elif x > x1 and y > y1 and z < z1:
@@ -90,6 +94,7 @@ class Octree:
                     continue
                 else:
                     cur.data[1] = (x, y, z)
+                    self.length += 1
                     break
             # quad 2
             elif x > x1 and y < y1 and z > z1:
@@ -103,6 +108,7 @@ class Octree:
                     continue
                 else:
                     cur.data[2] = (x, y, z)
+                    self.length += 1
                     break
             # quad 3
             elif x > x1 and y < y1 and z < z1:
@@ -116,6 +122,7 @@ class Octree:
                     continue
                 else:
                     cur.data[3] = (x, y, z)
+                    self.length += 1
                     break
             # quad 4
             elif x <= x1 and y >= y1 and z >= z1:
@@ -129,6 +136,7 @@ class Octree:
                     continue
                 else:
                     cur.data[4] = (x, y, z)
+                    self.length += 1
                     break
             # quad 5
             elif x <= x1 and y >= y1 and z <= z1:
@@ -142,6 +150,7 @@ class Octree:
                     continue
                 else:
                     cur.data[5] = (x, y, z)
+                    self.length += 1
                     break
             # quad 6
             elif x <= x1 and y <= y1 and z >= z1:
@@ -155,6 +164,7 @@ class Octree:
                     continue
                 else:
                     cur.data[6] = (x, y, z)
+                    self.length += 1
                     break
             # quad 7
             elif x <= x1 and y <= y1 and z <= z1:
@@ -168,7 +178,33 @@ class Octree:
                     continue
                 else:
                     cur.data[7] = (x, y, z)
+                    self.length += 1
                     break
 
     # Iterate through every point append to new csv file if greater than depth + threshold
-    def cleanTree(self, threshold) -> list:
+    def cleanTree(self, threshold=1) -> list:
+        targetDepth = math.ceil(math.log(self.length, 8))
+        self.iterate(self.head, threshold, targetDepth)
+        return self.clean
+
+    def iterate(self, cur, threshold, tdepth):
+        if cur.depth >= tdepth + threshold:
+            for x in cur.data:
+                if x is not None:
+                    self.clean.append(x)
+        if cur.nodes[0] is not None:
+            self.iterate(cur.nodes[0], threshold, tdepth)
+        if cur.nodes[1] is not None:
+            self.iterate(cur.nodes[1], threshold, tdepth)
+        if cur.nodes[2] is not None:
+            self.iterate(cur.nodes[2], threshold, tdepth)
+        if cur.nodes[3] is not None:
+            self.iterate(cur.nodes[3], threshold, tdepth)
+        if cur.nodes[4] is not None:
+            self.iterate(cur.nodes[4], threshold, tdepth)
+        if cur.nodes[5] is not None:
+            self.iterate(cur.nodes[5], threshold, tdepth)
+        if cur.nodes[6] is not None:
+            self.iterate(cur.nodes[6], threshold, tdepth)
+        if cur.nodes[7] is not None:
+            self.iterate(cur.nodes[7], threshold, tdepth)
