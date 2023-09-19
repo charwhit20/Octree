@@ -34,11 +34,12 @@ class Octant:
     def is_leaf(self):
         return all(child is None for child in self.octants)
 
-    def pick_leaf(self):
+    def pick_leaf(self, compression):
         global dspc
         leaf_data = (self.octant0 + self.octant1 + self.octant2 + self.octant3 +
                      self.octant4 + self.octant5 + self.octant6 + self.octant7)
-        dspc.extend(leaf_data)
+        points = random.sample(leaf_data, math.floor(len(leaf_data) * compression))
+        dspc.extend(points)
 
     def __init__(self, data, maxp):
         # UPON CREATION, ASSIGN POINTS TO OCTANTS, UPON DIVISION, ASSIGN DATA TO NEW OCTANTS
@@ -122,7 +123,7 @@ class Octant:
 
 class Octree:
     # include max and min so the tree knows how to divide quadrants
-    def __init__(self, data: pd.DataFrame, maxp=8):
+    def __init__(self, data: pd.DataFrame, maxp=4):
         self.head = Octant(data.values.tolist(), maxp)
 
     # now with tree created, find all the leaves in the tree
@@ -141,10 +142,8 @@ class Octree:
     def __pick_leaves__(self, compression):
         leaves = self.__get_leaf_nodes__(self.head)
         print("leaves: ", len(leaves))
-        leaves_to_process = random.sample(leaves, max(1, math.floor(len(leaves) * compression)))
-        print("leaves to process: ", len(leaves_to_process))
-        for leaf in leaves_to_process:
-            leaf.pick_leaf()
+        for leaf in leaves:
+            leaf.pick_leaf(compression)
 
     def downsample(self, compression, filename):
         self.__pick_leaves__(compression)
