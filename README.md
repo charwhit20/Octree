@@ -9,7 +9,8 @@ Example of a down sampling by random deletion from clusters with a max octant ca
 Result was a loss of 65% of points, and a decrease in file size of 64% - 10,056 KB -> 3,669 KB, result was visually clearer, and maintaned large structures more efficiently
 
 
-![downsampler github 2](https://github.com/charwhit20/Pointcloud-Downsampler/assets/99224673/a79eb09c-7098-43e7-8b29-5390def8e114)
+
+![downsampler github new](https://github.com/charwhit20/Pointcloud-Downsampler/assets/99224673/22131047-1919-4e6a-b967-846896a42e23)
 
 
 -PREVIOUS VERSION
@@ -19,4 +20,3 @@ Result was a loss of 40% of points, and a decrease in file size of 37% - 10,056 
 
 
 ![downsampler github](https://github.com/charwhit20/Pointcloud-Downsampler/assets/99224673/7ab1b11f-a09d-4f86-bac2-c159b673bab2)
-
