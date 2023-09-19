@@ -138,14 +138,14 @@ class Octree:
         return leaves
 
     # this will randomly select and delete leaves from the tree, then return a new dataframe for the cleaned data
-    def __pick_leaves__(self, threshold):
+    def __pick_leaves__(self, compression):
         leaves = self.__get_leaf_nodes__(self.head)
         print("leaves: ", len(leaves))
-        leaves_to_process = random.sample(leaves, max(1, math.floor(len(leaves) * (1 / threshold))))
+        leaves_to_process = random.sample(leaves, max(1, math.floor(len(leaves) * compression)))
         print("leaves to process: ", len(leaves_to_process))
         for leaf in leaves_to_process:
             leaf.pick_leaf()
 
-    def downsample(self, threshold, filename):
-        self.__pick_leaves__(threshold)
+    def downsample(self, compression, filename):
+        self.__pick_leaves__(compression)
         save(filename)
