@@ -18,13 +18,15 @@ Each Node denotes a perfect representation of an ideal octant
 contains a list point maximum for each, and points to 8 other octants
 """
 
-# downsampled pointcloud
-dspc = pd.DataFrame(columns=['x', 'y', 'z'])
+# downsampled pointcloud pd.DataFrame(columns=['x', 'y', 'z'])
+dspc = []
 
 
 def save(filename) -> None:
     global dspc
-    dspc.to_csv(filename, index=False)
+    print("total datapoints in new set: ", len(dspc))
+    data = pd.DataFrame(dspc, columns=['x', 'y', 'z'])
+    data.to_csv(filename, index=False)
 
 
 # This defines an OCTANT, which points to 8 POINTS inside it
@@ -34,9 +36,9 @@ class Octant:
 
     def pick_leaf(self):
         global dspc
-        leaf_data = pd.concat([self.octant0, self.octant1, self.octant2, self.octant3, self.octant4, self.octant5,
-                               self.octant6, self.octant7], ignore_index=True)
-        dspc = pd.concat([dspc, leaf_data], ignore_index=True)
+        leaf_data = (self.octant0 + self.octant1 + self.octant2 + self.octant3 +
+                     self.octant4 + self.octant5 + self.octant6 + self.octant7)
+        dspc.extend(leaf_data)
 
     def __init__(self, data, maxp):
         # UPON CREATION, ASSIGN POINTS TO OCTANTS, UPON DIVISION, ASSIGN DATA TO NEW OCTANTS
@@ -58,16 +60,6 @@ class Octant:
         self.octant7 = []
         for index, row in enumerate(data):
             x, y, z = row
-            """
-            0 +x +y +z
-            1 +x +y -z
-            2 +x -y +z
-            3 +x -y -z
-            4 -x +y +z
-            5 -x +y -z
-            6 -x -y +z
-            7 -x -y -z
-            """
             # octant 0
             if x >= self.xcoord and y >= self.ycoord and z >= self.zcoord:
                 self.octant0.append(row)
@@ -148,7 +140,9 @@ class Octree:
     # this will randomly select and delete leaves from the tree, then return a new dataframe for the cleaned data
     def __pick_leaves__(self, threshold):
         leaves = self.__get_leaf_nodes__(self.head)
-        leaves_to_process = random.sample(leaves, (len(leaves) * math.floor(1 - (1 / threshold))))
+        print("leaves: ", len(leaves))
+        leaves_to_process = random.sample(leaves, max(1, math.floor(len(leaves) * (1 / threshold))))
+        print("leaves to process: ", len(leaves_to_process))
         for leaf in leaves_to_process:
             leaf.pick_leaf()
 
